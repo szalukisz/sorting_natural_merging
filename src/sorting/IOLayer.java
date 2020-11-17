@@ -2,30 +2,45 @@ package sorting;
 
 import java.io.*;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class IOLayer {
 
-    IOLayer(){
+    private int pageSize;
+
+    IOLayer(int _pageSize){
+        pageSize = _pageSize;
     }
 
-    public static byte [] float2ByteArray (float value)
-    {
-        return ByteBuffer.allocate(4).putFloat(value).array();
+    public static void deleteRecords(String filePath){
+        try {
+            FileWriter myWriter = new FileWriter(filePath);
+            myWriter.write("");
+            myWriter.close();
+        } catch (IOException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
     }
 
-    // read record from file declared in constructor
-    public Record readRecord(long index, String filePath){
-        float []params = new float[5];
-        boolean readed = false;
+    public ArrayList<Record> readPage(long index, String filePath ){
+        ArrayList<Record> ret = new ArrayList<>();
         RandomAccessFile raf = null;
         try {
+            float[] params = new float[5];
             raf = new RandomAccessFile(filePath, "r");
-            raf.seek(index*5*Float.BYTES);
-            byte[] buffer = new byte[5*Float.BYTES];
+            raf.seek(index*5*Float.BYTES*pageSize);
+            byte[] buffer = new byte[5*Float.BYTES*pageSize];
             raf.read(buffer);
-            if(notNullArray(buffer)) {
-                params = byte2floatArray(buffer);
-                readed = true;
+            for (int i = 0; i < pageSize; i++) {
+                if(raf.length()!= 0 && (index*pageSize+i)*5*Float.BYTES<raf.length()) {
+                    params = byte2floatArray(Arrays.copyOfRange(buffer, i * 5 * Float.BYTES, (i + 1) * 5 * Float.BYTES));
+                    ret.add(new Record(params));
+                }else{
+                    ret.add(null);
+                    break;
+                }
             }
         }catch(Exception e){
             System.out.println("An error occurred while reading from file.");
@@ -39,36 +54,22 @@ public class IOLayer {
                 }
             }
         }
-        if(readed)
-            return new Record(params);
-        else
-            return null;
+        return ret;
     }
 
+    public void writePage(String filePath, ArrayList<Record> page){
+        ByteBuffer bb = ByteBuffer.allocate(20*page.size());
+        for (Record record: page) {
+            bb.put(record.paramByteArray());
+        }
 
-    public void writeRecord(String filePath, Record record){
         try{
             RandomAccessFile raf = new RandomAccessFile(filePath, "rw");
-
-            //raf.write(record.paramByteArray(),seek*record.size,record.size);
-            raf.seek(raf.length());
-            raf.write(record.paramByteArray());
-
+            raf.seek(raf.length()); // going to end of file
+            raf.write(bb.array());
             raf.close();
         }catch(Exception e){
             System.out.println("An problem occur in IOLayer while writing!");
-            e.printStackTrace();
-        }
-
-    }
-
-    public void deleteRecords(String filePath){
-        try {
-            FileWriter myWriter = new FileWriter(filePath);
-            myWriter.write("");
-            myWriter.close();
-        } catch (IOException e) {
-            System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
@@ -82,14 +83,6 @@ public class IOLayer {
             t_params[i]=bb.getFloat(i*Float.BYTES);
         }
         return t_params;
-    }
-
-    boolean notNullArray(byte[] array){
-        for (byte var:array) {
-            if(var!=0)
-                return true;
-        }
-        return false;
     }
 
 }

@@ -5,18 +5,7 @@ import java.nio.ByteBuffer;
 public class Record {
 
     private float a,y,c,z,x;
-    private float [] params = new float[5];
-    public int size = 5*Float.BYTES;
-
-
-    Record(float _a,float _y,float _c,float _z,float _x){
-        // a y c z x
-        a = _a;
-        y = _y;
-        c = _c;
-        z = _z;
-        x = _x;
-    }
+    private float [] params;
 
     Record(float [] _params){
         // a y c z x
@@ -28,9 +17,10 @@ public class Record {
         x = _params[4];
     }
 
-
     public float getKey(){
-        return params[0];// here goes this weird function from quiz
+        //return params[0];// here goes this weird function from quiz
+        // should have add key value calculated in constructor
+        return (float)(10*a*(Math.sin(Math.pow(x,2)+3*Math.pow(c,3)) - Math.cos(Math.pow(z,4)+5*Math.pow(y,7))));
     }
 
     @Override
@@ -38,8 +28,7 @@ public class Record {
         return String.format("%.6f %.6f %.6f %.6f %.6f",a,y,c,z,x).replace(',', '.');
     }
 
-    public byte [] paramByteArray ()
-    {
+    public byte [] paramByteArray (){
         ByteBuffer bb = ByteBuffer.allocate(20);
         for (float var:params) {
             bb.putFloat(var);
