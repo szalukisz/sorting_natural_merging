@@ -23,6 +23,7 @@ public class Record {
         return (float)(10*a*(Math.sin(Math.pow(x,2)+3*Math.pow(c,3)) - Math.cos(Math.pow(z,4)+5*Math.pow(y,7))));
     }
 
+
     @Override
     public String toString(){
         return String.format("%.6f %.6f %.6f %.6f %.6f",a,y,c,z,x).replace(',', '.');

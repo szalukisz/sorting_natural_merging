@@ -71,6 +71,9 @@ public class Main {
                     case 6: // sorting file using natural sort 2+2
                         if (mainTape != null){
                             System.out.println("\nSorting...");
+                            if(printAfterEachState){
+                                mainTape.printTape();
+                            }
                             sortFile(mainTape, pageSize, printAfterEachState);
                         }else{
                             System.out.println("First select or generate file to sort.");

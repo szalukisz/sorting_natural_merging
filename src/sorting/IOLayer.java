@@ -8,9 +8,11 @@ import java.util.Arrays;
 public class IOLayer {
 
     private int pageSize;
+    private String filePath;
 
-    IOLayer(int _pageSize){
+    IOLayer(int _pageSize, String _filePath){
         pageSize = _pageSize;
+        filePath = _filePath;
     }
 
     public static void deleteRecords(String filePath){
@@ -24,11 +26,11 @@ public class IOLayer {
         }
     }
 
-    public ArrayList<Record> readPage(long index, String filePath ){
+    public ArrayList<Record> readPage(long index ){
         ArrayList<Record> ret = new ArrayList<>();
         RandomAccessFile raf = null;
         try {
-            float[] params = new float[5];
+            float[] params;
             raf = new RandomAccessFile(filePath, "r");
             raf.seek(index*5*Float.BYTES*pageSize);
             byte[] buffer = new byte[5*Float.BYTES*pageSize];
@@ -57,7 +59,7 @@ public class IOLayer {
         return ret;
     }
 
-    public void writePage(String filePath, ArrayList<Record> page){
+    public void writePage(ArrayList<Record> page){
         ByteBuffer bb = ByteBuffer.allocate(20*page.size());
         for (Record record: page) {
             bb.put(record.paramByteArray());

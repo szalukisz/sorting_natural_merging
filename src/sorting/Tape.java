@@ -15,7 +15,7 @@ public class Tape {
     Tape(String _name, int _pageSize){
         name = _name;
         pageSize = _pageSize;
-        ioLayer = new IOLayer(pageSize);
+        ioLayer = new IOLayer(pageSize,name);
     }
 
     // delete content of tape(file)
@@ -30,7 +30,7 @@ public class Tape {
         }
         if(writeBuffer.size()==pageSize-1) {
             writeBuffer.add(record);
-            ioLayer.writePage(name, writeBuffer);
+            ioLayer.writePage( writeBuffer);
             writesCounter++;
             writeBuffer = new ArrayList<>();
         }else{
@@ -42,7 +42,7 @@ public class Tape {
     public Record readRecordFromTape(long index){
         if(index/pageSize!=readPageCounter){
             readPageCounter++;
-            readBuffer = ioLayer.readPage(readPageCounter,name);
+            readBuffer = ioLayer.readPage(readPageCounter);
             readsCounter++;
         }
         if((int)index%pageSize>=readBuffer.size())
@@ -54,7 +54,7 @@ public class Tape {
     // send left data to write to file, clear readBuffer
     public void flushTape(){
         if(writeBuffer!= null && writeBuffer.size()%pageSize!=0){
-            ioLayer.writePage(name, writeBuffer);
+            ioLayer.writePage(writeBuffer);
             writesCounter++;
             writeBuffer = null;
         }
